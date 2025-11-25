@@ -59,3 +59,10 @@ class CommentListCreateView(APIView):
         )
 
         return Response(CommentSerializer(comment).data, status=201)
+    
+class PublicSightingListView(APIView):
+
+    def get(self, request):
+        sightings = SightingService.list_sightings()
+        serializer = SightingSerializer(sightings, many=True)
+        return Response(serializer.data)
