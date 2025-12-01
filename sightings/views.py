@@ -18,29 +18,25 @@ class SightingListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        data = request.data.copy()
-
-        # Se vier um arquivo de imagem (FormData)
-        image_file = request.FILES.get("image")
-
-        if image_file:
-            # Converte o arquivo para base64
-            encoded = base64.b64encode(image_file.read()).decode("utf-8")
-
-            # Salva direto na coluna image_url
-            data["image_url"] = f"data:{image_file.content_type};base64,{encoded}"
-
-        serializer = SightingSerializer(data=data)
+        """
+        Agora aceita multipart/form-data com campo 'image'.
+        O serializer converte automaticamente para base64
+        e salva em image_url.
+        """
+        serializer = SightingSerializer(data=request.data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        # Já vem com image_url preenchido se teve imagem
+        validated = serializer.validated_data
+
         sighting = SightingService.create_sighting(
-            data=serializer.validated_data,
+            data=validated,
             user=request.user
         )
 
-        return Response(SightingSerializer(sighting).data, status=201)
+        return Response(SightingSerializer(sighting).data, status=status.HTTP_201_CREATED)
 
 class SightingDetailView(APIView):
     permission_classes = [IsAuthenticated]

@@ -24,7 +24,7 @@ class Sighting(models.Model):
     latitude = models.FloatField()
     longitude = models.FloatField()
 
-    image_url = models.URLField(blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True)
 
     ai_prediction_radius_km = models.FloatField(blank=True, null=True)
 
