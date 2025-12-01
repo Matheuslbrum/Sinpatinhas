@@ -5,7 +5,9 @@ from .views import (
     RefreshTokenView,
     ProfileView,
     UpdateAvatarView,
-    DeleteUserView
+    DeleteUserView,
+    ToggleSaveSightingView,
+    MySavedSightingsView,
 )
 
 urlpatterns = [
@@ -17,5 +19,9 @@ urlpatterns = [
     # PROFILE
     path("me/", ProfileView.as_view(), name="profile"),
     path("avatar/", UpdateAvatarView.as_view(), name="avatar_update"),
-    path("delete/", DeleteUserView.as_view(), name="delete_user"),  # 👈 nova rota
+    path("delete/", DeleteUserView.as_view(), name="delete_user"),
+      
+    path("<uuid:sighting_id>/save/", ToggleSaveSightingView.as_view(), name="save-sighting"),
+    path("save/", MySavedSightingsView.as_view(), name="my-save-sightings"),
+
 ]

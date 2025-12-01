@@ -1,5 +1,6 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from users.models import User
+from sightings.models import Sighting
 
 
 class ProfileService:
@@ -41,3 +42,21 @@ class ProfileService:
             return {"success": True, "message": "Conta excluída com sucesso."}
         except Exception as e:
             return {"success": False, "message": f"Erro ao excluir conta: {str(e)}"}
+        
+    def toggle(self, user, sighting_id):
+        try:
+            sighting = Sighting.objects.get(id=sighting_id)
+        except Sighting.DoesNotExist:
+            return {"success": False, "message": "Sighting não encontrado."}
+
+        result = user.toggle_save_sighting(sighting)
+
+        return {
+            "success": True,
+            "saved": result["saved"],
+            "message": result["message"]
+        }
+
+    @staticmethod
+    def list_saved(user):
+        return user.saved_sightings.all()

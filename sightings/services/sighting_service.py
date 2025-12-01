@@ -1,4 +1,5 @@
 from sightings.models import Sighting
+from django.core.exceptions import PermissionDenied
 
 
 class SightingService:
@@ -24,3 +25,16 @@ class SightingService:
     @staticmethod
     def retrieve_sighting(sighting_id):
         return Sighting.objects.get(id=sighting_id)
+    
+    def list_user_sightings(user):
+        return Sighting.objects.filter(user=user).order_by("-created_at")
+
+    def delete_sighting(sighting_id, user):
+        sighting = Sighting.objects.get(id=sighting_id)
+
+        # garantia de segurança
+        if sighting.user != user:
+            raise PermissionDenied("Você não tem permissão para excluir este avistamento.")
+
+        sighting.delete()
+        return True

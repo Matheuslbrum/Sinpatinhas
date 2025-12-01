@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from .services.auth import AuthService
 from .services.profile import ProfileService
+from .serializers import SavedSightingSerializer
 
 
 # ===========================================
@@ -113,3 +114,27 @@ class DeleteUserView(APIView):
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(result, status=status.HTTP_200_OK)
+    
+class ToggleSaveSightingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, sighting_id):
+        print(request.user)
+        service = ProfileService()
+        result = service.toggle(request.user, sighting_id)
+
+
+        if not result["success"]:
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(result, status=status.HTTP_200_OK)
+
+
+class MySavedSightingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        service = ProfileService()
+        saved = service.list_saved(request.user)
+        serializer = SavedSightingSerializer(saved, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

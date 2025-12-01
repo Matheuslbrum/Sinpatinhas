@@ -36,6 +36,13 @@ class SightingDetailView(APIView):
     def get(self, request, sighting_id):
         sighting = SightingService.retrieve_sighting(sighting_id)
         return Response(SightingSerializer(sighting).data)
+    
+    def delete(self, request, sighting_id):
+        try:
+            SightingService.delete_sighting(sighting_id, request.user)
+            return Response({"message": "Avistamento deletado com sucesso."}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
 
 class CommentListCreateView(APIView):
@@ -64,5 +71,13 @@ class PublicSightingListView(APIView):
 
     def get(self, request):
         sightings = SightingService.list_sightings()
+        serializer = SightingSerializer(sightings, many=True)
+        return Response(serializer.data)
+
+class MySightingsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        sightings = SightingService.list_user_sightings(request.user)
         serializer = SightingSerializer(sightings, many=True)
         return Response(serializer.data)

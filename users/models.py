@@ -45,6 +45,20 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+    
+    def toggle_save_sighting(self, sighting):
+        from .models import SavedSighting  # evita import circular
+
+        saved = SavedSighting.objects.filter(user=self, sighting=sighting).first()
+
+        # já existe → remover
+        if saved:
+            saved.delete()
+            return {"saved": False, "message": "Avistamento removido dos salvos."}
+
+        # não existe → criar
+        SavedSighting.objects.create(user=self, sighting=sighting)
+        return {"saved": True, "message": "Avistamento adicionado aos salvos."}
 
 
 class SavedSighting(models.Model):
