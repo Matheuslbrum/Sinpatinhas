@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User, SavedSighting
+from sightings.models import Sighting
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -37,8 +38,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "email", "username", "phonenumber", "created_at"]
 
+class SightingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sighting
+        fields = "__all__"
+
 class SavedSightingSerializer(serializers.ModelSerializer):
+    sighting = SightingSerializer(read_only=True)
+
     class Meta:
         model = SavedSighting
-        fields = ["id", "user", "sighting", "created_at"]
-        read_only_fields = ["id", "user", "created_at"]
+        fields = ["id", "sighting", "created_at"]
+
