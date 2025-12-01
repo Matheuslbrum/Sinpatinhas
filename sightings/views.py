@@ -1,3 +1,4 @@
+import base64
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,7 +18,19 @@ class SightingListCreateView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = SightingSerializer(data=request.data)
+        data = request.data.copy()
+
+        # Se vier um arquivo de imagem (FormData)
+        image_file = request.FILES.get("image")
+
+        if image_file:
+            # Converte o arquivo para base64
+            encoded = base64.b64encode(image_file.read()).decode("utf-8")
+
+            # Salva direto na coluna image_url
+            data["image_url"] = f"data:{image_file.content_type};base64,{encoded}"
+
+        serializer = SightingSerializer(data=data)
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -28,7 +41,6 @@ class SightingListCreateView(APIView):
         )
 
         return Response(SightingSerializer(sighting).data, status=201)
-
 
 class SightingDetailView(APIView):
     permission_classes = [IsAuthenticated]
